@@ -21,4 +21,6 @@ Multiplayer:
 - second player edit the file resources/config.properties
 - edit the setting for username, set prameter host to ip of the server
 - start game, you should automatically connected to the external gameserver 
+- cursorposition of other player is shown as a red dot on the map.
+- i suggest to use teamspeak or videocall during game to communicate about gameplay, this is a virtual gameboard, not a full multiplayer game
   
