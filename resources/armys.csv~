@@ -1,0 +1,10 @@
+Army;UnitDesignation;MoveGeneral;MoveAttack;MoveSkirmish;MoveHold;Maneuvers;Armor;WeaponMelee;WeaponMeleeDescription;WeaponShooting;DistanceShooting;ChargeBonus;HitPoints;Initiative;Size;Figures;Value;Elements;;iconFile;portraitFile
+Imperial;Imperial Arquebusiers;16;12;8;0;2;0;5;Handweapon;7,4;3,7;0;1;2;1;4;90;7;;ImperialArquebusiers.gif;ImperialArquebusiers2.png
+Imperial;Berserkers;24;18;12;0;1;0;7;Two-handed weapon;;;0;1;2;2;4;210;9;;Berserkers.gif;Berserkers.jpg
+Imperial;Order Knights of purifying light;24;18;12;0;3;5;6,5;Lance, Handweapon;;;2;1;2;3;2;330;8;;OrderKnights.gif;OrderKnights.png
+Imperial;Noble Footsoldiers;16;12;8;0;2;2;5;Handweapon;;;0;1;2;2;4;130;7;;footsoldiers.gif;NobleFootsoldiers2.png
+Orcs;Dwarf-Eaters;16;12;8;0;1;2;7;Two-handed weapon;;;0;1;2;2;4;180;7;;DwarfEaters.gif;DwarfEaters.png
+Orcs;Light Orc archers;24;18;12;0;1;0;3;Improvised weapon;9;4;0;1;2;2;4;60;7;;OrcArchers.gif;OrcArcher.png
+Orcs;Light Orc Swordbearers;20;16;10;0;1;1;5;Handweapon;;;0;1;2;2;4;80;7;;LightOrcSwordbearers.gif;LightOrcSwordbearers.png
+Orcs;Orc-Guard;16;12;8;0;2;2;7;Two handweapons;;;0;1;2;2;4;290;6;;OrcGuard.gif;OrcGuard.png
+Orcs;Trolls;16;12;8;0;1;0;5;Handweapon;;;0;1;1;3;2;180;9;;Trolls.gif;Trolls.png

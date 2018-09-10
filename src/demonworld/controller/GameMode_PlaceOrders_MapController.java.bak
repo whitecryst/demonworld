@@ -1,0 +1,271 @@
+package demonworld.controller;
+
+
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Vector;
+
+import javax.imageio.ImageIO;
+
+import biz.pavonis.hexameter.api.Hexagon;
+import biz.pavonis.hexameter.api.exception.HexagonNotFoundException;
+import demonworld.controller.server.ControlSource;
+import demonworld.map.GeneralMapDrawer;
+import demonworld.map.HexagonPanel;
+import demonworld.map.SatelliteData;
+import demonworld.model.CursorModel;
+import demonworld.model.GameState;
+import demonworld.model.UnitOrder;
+
+public class GameMode_PlaceOrders_MapController implements  InputHandlerInterface {
+	private HexagonPanel hexPanel;
+	private GameState gameModel;
+	private CursorModel<UnitOrder> currentElement; // current choosed Cursor element to add to map
+	private Vector<CursorModel<UnitOrder>> elementList = new Vector<CursorModel<UnitOrder>>(); // all elements from both armys
+	private final String DELETE = "Delete";
+	private ControlSource playerSource;
+
+	
+	public HexagonPanel getHexPanel() {
+		return hexPanel;
+	}
+
+
+	public GameMode_PlaceOrders_MapController(HexagonPanel hexPanel, GameState gameModel, ControlSource playerSource) {
+		this.playerSource = playerSource;
+		this.hexPanel = hexPanel;
+		this.gameModel = gameModel;
+		init();
+	}
+	
+	public void init() {
+		//currentElement = gameModel.availableArmyElements.get(0);
+		setOrderChooser(true);
+		setActionChooser(true);
+		
+		// invoke repaint of cursor (necessary after gameMode switch)
+		updateCursorElement( 0 );
+	}
+
+	
+	private void setOrderChooser( boolean enable ) {
+		
+		if( enable ) {
+			for( UnitOrder order : UnitOrder.values() ) {
+				BufferedImage img = null;
+				// Add Delete_action element
+				try {
+					if( playerSource.equals(ControlSource.LOCAL_PLAYER) ) {
+						//if( order != UnitOrder.NO_ORDER ) {
+							img = ImageIO.read(new File("resources/images/Order_"+order.name()+".png"));
+						//}
+					} else {
+						img = ImageIO.read(new File("resources/images/Order_NO_ORDER.png"));
+					}
+				} catch (IOException e) {
+				}
+				CursorModel<UnitOrder> newElement = new CursorModel<UnitOrder>(order.name(), img, order);
+				this.elementList.add( newElement );	
+			}
+			
+		} else {
+			// for every Order element
+			
+			for( UnitOrder el1 : UnitOrder.values() ) {
+				int elPos = -1;
+				// find index of element
+				for( CursorModel<UnitOrder> el2 : elementList ) {
+					if( el1.name().equals(el2.name)) {
+						elPos = elementList.indexOf(el2);
+					}
+				}
+				// delete element
+				if( elPos != -1 ) {
+					elementList.remove(elPos);
+				}
+			}
+		}
+	}
+	
+	private void setActionChooser( boolean enable ) {
+		
+		if( enable ) {
+			BufferedImage img = null;
+			// Add Delete_action element
+			try {
+			    img = ImageIO.read(new File("resources/images/delete.png"));
+			} catch (IOException e) {
+			}
+			CursorModel<UnitOrder> newElement = new CursorModel<UnitOrder>(DELETE, img, null);
+			this.elementList.add( newElement );
+		} else {
+			
+		}
+	}
+	
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		//System.out.println("MapSetup mouseClicked");
+		try {
+			Hexagon hex = hexPanel.getHexByPixelCoordinate(e.getY(), e.getX());
+			
+			/*
+			if( hex.getSatelliteData() == null ) {
+				hex.setSatelliteData( new SatelliteData() );
+			}*/
+			SatelliteData data = ((SatelliteData)hex.getSatelliteData());
+			data.setSelected(playerSource, true);
+			
+			
+			if( currentElement.name.equals( DELETE ) ) {
+				data.element.armyUnit.status.order = null;
+			} else {
+				//System.out.println( data.element );
+				if( data.element != null ) {
+					data.element.armyUnit.status.order = currentElement.obj;
+				}
+				
+			}
+			
+			//hexPanel.setSelectedHexagon( hex ); 
+			hexPanel.repaint();
+			//hexPanel.paint( hexPanel.getGraphics() );
+		} catch (HexagonNotFoundException err) {
+			
+		}
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+//		System.out.println( "mousepressed" );
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		// update cursorPos
+		hexPanel.mouseCursorPos.put(playerSource, e.getPoint());
+		hexPanel.repaint();
+	}
+
+
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		//System.out.println( "wheel before: "+currentElement.unitDesignation+" "+currentElementPos );
+		int offset = e.getWheelRotation(); 
+		//System.out.println( "offset"+offset );
+		changeActElement(offset);
+	}
+
+	private void changeActElement(int offset) {
+		int currentElementPos = elementList.indexOf( currentElement );
+		if( ( currentElementPos + offset ) < elementList.size() && ( currentElementPos + offset ) >= 0 ) {
+			currentElementPos += offset;	
+		} else if ( ( currentElementPos + offset ) >= elementList.size() ) {
+			currentElementPos = elementList.size() % offset;
+		} else if( ( currentElementPos + offset ) < 0 ) {
+			currentElementPos = (elementList.size()-1) - (elementList.size() % (offset*-1));
+		} 
+		
+		updateCursorElement( currentElementPos );
+		//System.out.println( "wheel after: "+currentElement.unitDesignation+" "+currentElementPos );	
+	}
+
+	private void updateCursorElement(int currentElementPos) {
+		if( currentElementPos >= 0 && currentElementPos < elementList.size() ) {
+
+			currentElement = elementList.get( currentElementPos );
+			((GeneralMapDrawer)hexPanel.mapDrawer).setCursorImage( 
+					((GeneralMapDrawer)hexPanel.mapDrawer).getScaledImageFitInHexagon( currentElement.img ,1 ),
+					playerSource);
+			//hexPanel.mainViewControl.updateSelectedelementInfo( currentElement );
+		}
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+	}
+
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		int keyCode = e.getKeyCode();
+	    switch( keyCode ) { 
+	        case KeyEvent.VK_UP:
+	        	changeActElement(1);	
+	            break;
+	        case KeyEvent.VK_DOWN:
+	        	changeActElement(-1);	
+	            break;
+	        case KeyEvent.VK_LEFT:
+        		changeActElement(0);	
+	            break;
+	        case KeyEvent.VK_RIGHT :
+	        	// Last element
+        		updateCursorElement( elementList.size()-1 );
+	        	break;
+	        case KeyEvent.VK_X :
+	        	// delete
+        		for( CursorModel<UnitOrder> el : elementList ) {
+        			if( el.name.equals( DELETE ) ) {
+        				updateCursorElement( elementList.indexOf(el) );
+        			}
+        		}
+	        	break;
+	        case KeyEvent.VK_ESCAPE :
+	        	break;
+	     }
+	
+	}
+
+	
+	@Override
+	public void keyReleased(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	public void endPhase() {
+		
+	}
+
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}

@@ -1,0 +1,5 @@
+package demonworld.controller;
+
+public enum GameMode {
+	SETUP_ARMYS, PLACE_ORDERS, FIGHT_RANGED_SKIRMISH, MOVE, FIGHT_RANGED_HOLD, FIGHT_MEELE, PREPARE_NEXTROUND 
+}
